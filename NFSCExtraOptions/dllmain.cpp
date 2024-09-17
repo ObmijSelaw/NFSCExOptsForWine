@@ -21,7 +21,7 @@ HWND windowHandle;
 DWORD HeatLevelsCodeCaveExit = 0x449a82;
 DWORD StringReplacementCodeCaveExit = 0x57861F;
 
-char* StringBuffer1 = "© 2006 Electronic Arts Inc. All rights reserved.^NFSC Extra Options - © 2018 ExOpts Team. No rights reserved.";
+char* StringBuffer1 = "© 2006 Electronic Arts Inc. All rights reserved.^NFSC Extra Options - © 2022 ExOpts Team. No rights reserved.";
 DWORD _A7EBC389_New = (DWORD)StringBuffer1;
 
 DWORD CopsOptionCodeCaveExit = 0x84C1E1;
@@ -460,8 +460,8 @@ void Init()
 		injector::WriteMemory<unsigned char>(0x4A2924, 0x0A, true);
 
 		// Crew Member in Any Race
-		// injector::WriteMemory<unsigned char>(0x61BAA2, 0xB1, true);
-		// injector::WriteMemory<unsigned char>(0x61BAA3, 0x01, true);
+		injector::WriteMemory<unsigned char>(0x61BAA2, 0xB1, true);
+		injector::WriteMemory<unsigned char>(0x61BAA3, 0x01, true);
 
 		injector::MakeJMP(0x84B861, 0x84B92B, true);
 
@@ -547,7 +547,7 @@ void Init()
 	}
 
 	// Remove Barriers
-	if (RemoveNeonBarriers)
+	if (RemoveNeonBarriers == 1)
 	{
 		injector::WriteMemory<unsigned char>(0x9d85c8, 0x59, true); // BARRIER_SPLINE_4501
 		injector::WriteMemory<unsigned char>(0x9d85dc, 0x59, true); // BARRIER_SPLINE_4500
@@ -557,6 +557,16 @@ void Init()
 		injector::WriteMemory<unsigned char>(0x9d862c, 0x59, true); // BARRIER_SPLINE_305
 		injector::WriteMemory<unsigned char>(0x9d8b34, 0x59, true); // BARRIER_SPLINE_%d
 	}
+	
+	// Remove Area Barriers 
+	if (RemoveNeonBarriers == 2)
+	{
+		injector::WriteMemory<unsigned char>(0x9d85c8, 0x59, true); // BARRIER_SPLINE_4501
+		injector::WriteMemory<unsigned char>(0x9d85dc, 0x59, true); // BARRIER_SPLINE_4500
+		injector::WriteMemory<unsigned char>(0x9d85f0, 0x59, true); // BARRIER_SPLINE_4091
+		injector::WriteMemory<unsigned char>(0x9d8604, 0x59, true); // BARRIER_SPLINE_4090
+		injector::WriteMemory<unsigned char>(0x9d8618, 0x59, true); // BARRIER_SPLINE_306
+		injector::WriteMemory<unsigned char>(0x9d862c, 0x59, true); // BARRIER_SPLINE_305
 
 	// Starting Cash
 	injector::WriteMemory<int>(0x4C4CC7, StartingCash, true);
@@ -681,6 +691,14 @@ void Init()
 		if (ShowSpecialVinyls == 2)
 		{
 			// Unhide virus??
+			injector::WriteMemory<DWORD>(0x577669, 0xDEADCAFE, true);
+		}
+		
+		if (ShowSpecialVinyls == 3)
+		{
+			// Unhide virus and special
+			injector::MakeNOP(0x588BA8, 2, true);
+			injector::MakeNOP(0x588BAD, 2, true);
 			injector::WriteMemory<DWORD>(0x577669, 0xDEADCAFE, true);
 		}
 		
