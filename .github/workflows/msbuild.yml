@@ -45,20 +45,30 @@ jobs:
           choco install visualstudio2017buildtools --params "--add Microsoft.VisualStudio.Component.VC.v142"
 
       - name: Build
-        run: msbuild ${{ env.SOLUTION }} /p:Configuration=Release /p:Platform=x86 /p:PlatformToolset=v142
+        run: msbuild ${{ env.SOLUTION_NAME }}.sln /p:Configuration=Release /p:Platform=x86 /p:PlatformToolset=v142
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: NFSCExOpts-artifacts
-          path: Release/${{ env.SOLUTION_NAME }}/scripts/*.*  # Adjust if necessary
+          path: Release/**/*  # Uploads everything in the Release folder
 
       - name: Zip Build Artifacts
-        run: Compress-Archive -Path Release/${{ env.SOLUTION_NAME }}/* -DestinationPath ${{ env.SOLUTION_NAME }}.zip
+        run: |
+          if (Test-Path Release/${{ env.SOLUTION_NAME }}) {
+            Compress-Archive -Path Release/${{ env.SOLUTION_NAME }}/* -DestinationPath ${{ env.SOLUTION_NAME }}.zip
+          } else {
+            echo "Release folder not found, skipping zip step"
+            exit 1
+          }
         shell: pwsh
 
       - name: Generate Changelog
-        run: echo "# Changelog:" > ${{ github.workspace }}/CHANGELOG.txt
+        run: |
+          echo "# Changelog" > ${{ github.workspace }}/CHANGELOG.txt
+          echo "" >> ${{ github.workspace }}/CHANGELOG.txt
+          git log --pretty=format:"- %h %s" -10 >> ${{ github.workspace }}/CHANGELOG.txt
+        shell: pwsh
 
       - name: Create Release with Assets and Changelog
         uses: softprops/action-gh-release@v2
