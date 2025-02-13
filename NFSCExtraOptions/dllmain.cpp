@@ -20,7 +20,7 @@ unsigned char minLaps, maxLaps, minTime, maxTime, minOpponents, maxOpponents, cs
 int hotkeyToggleForceHeat, hotkeyForceHeatLevel, hotkeyToggleCops, hotkeyToggleCopLights, hotkeyToggleHeadlights,
     hotkeyUnlockAllThings, hotkeyAutoDrive, StartingCash, hotkeyDriftMode, ThreadDelay, GameState, SelectableMarkerCount
     ,
-    hotkeyFreezeCamera, ShowMoreRaceOptions;
+    hotkeyFreezeCamera, ShowMoreRaceOptions, NosTrailRepeatCount;
 bool ShowSubs, EnableMoreCarCategories, ShowLanguageSelectScreen, EnableDebugWorldCamera, ExOptsTeamTakeOver,
      EnableCameras, copLightsEnabled, UnlockStrangeRace, UnlockSeriesCarsAndUpgrades,
      EnableHeatLevelOverride, AlwaysRain, SkipMovies, EnableSound, EnableMusic, EnableVoice, GarageZoom, GarageRotate,
@@ -343,6 +343,7 @@ void Init()
     ShowAllCarsInFE = iniReader.ReadInteger("Gameplay", "ShowAllCarsInFE", 0);
     NoCatchUp = iniReader.ReadInteger("Gameplay", "NoCatchUp", 0) == 1;
     NoRevLimiter = iniReader.ReadInteger("Gameplay", "NoRevLimiter", 0) == 1;
+    NosTrailRepeatCount = iniReader.ReadInteger("Gameplay", "NosTrailRepeatCount", 8);
     SelectableMarkerCount = iniReader.ReadInteger("Gameplay", "SelectableMarkerCount", 2);
     SBRechargeTime = iniReader.ReadFloat("Gameplay", "SBRechargeTime", 25.0f);
     SBRechargeSpeedLimit = iniReader.ReadFloat("Gameplay", "SBRechargeSpeedLimit", 80.0f);
@@ -706,7 +707,7 @@ void Init()
     }
 
     // Add Special vinyls to shop
-    if (ShowSpecialVinyls)
+    if (ShowSpecialVinyls != 0)
     {
         if (ShowSpecialVinyls == 1)
         {
@@ -1011,6 +1012,9 @@ void Init()
 
     // String Replacement
     injector::MakeJMP(0x57861A, StringReplacementCodeCave, true);
+
+    // NOS Trail Repeat Count NosTrailRepeatCount
+    injector::WriteMemory<int>(0xA732A8, NosTrailRepeatCount, true);
 
     // Other Things
     CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&Thing, NULL, 0, NULL);
