@@ -7,4 +7,4 @@ You can [download Extra Options](https://github.com/Sh2dow/NFSCExOpts/releases) 
 If you want to compile it yourself, check the [Source Code (not available yet)](http://extraoptions.wikia.com/wiki/Source_Code) page out.
 
 ## Build
-[![MSBuild](https://github.com/Sh2dow/NFSCExOpts/actions/workflows/msbuild.yml/badge.svg?branch=main&cachebuster=1)](https://github.com/Sh2dow/NFSCExOpts/actions/workflows/msbuild.yml)
+[![MSBuild](https://github.com/Sh2dow/NFSCExOpts/actions/workflows/msbuild.yml/badge.svg?branch=master&cachebuster=1)](https://github.com/Sh2dow/NFSCExOpts/actions/workflows/msbuild.yml)
