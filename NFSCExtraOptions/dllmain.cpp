@@ -393,7 +393,7 @@ void Init()
     EnableMusic = iniReader.ReadInteger("Misc", "EnableMusic", 1) == 1;
     EnableVoice = iniReader.ReadInteger("Misc", "EnableVoice", 1) == 1;
     ShowMessage = iniReader.ReadInteger("Misc", "ShowMessage", 1) == 1;
-    // SkipCareerIntro = iniReader.ReadInteger("Misc", "SkipCareerIntro", 0) == 1;
+    SkipCareerIntro = iniReader.ReadInteger("Misc", "SkipCareerIntro", 0) == 1;
     AllowMultipleInstances = iniReader.ReadInteger("Misc", "AllowMultipleInstances", 0) == 1;
     ThreadDelay = iniReader.ReadInteger("Misc", "ThreadDelay", 10);
 
@@ -558,6 +558,12 @@ void Init()
         injector::MakeNOP(0x869CD6, 2, true);
     }
 
+    if (SkipCareerIntro)
+    {
+        injector::WriteMemory<uint8_t>(0xa9e6C2 , 1, true); // SkipDDayRaces
+        injector::WriteMemory<uint8_t>(0xa9e6C1, 1, true); // SkipCareerIntro
+    }
+    
     // Enable Drift Camera View Everywhere
     if (EnableCameras)
     {
