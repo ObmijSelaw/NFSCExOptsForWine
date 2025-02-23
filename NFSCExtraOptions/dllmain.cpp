@@ -8,6 +8,19 @@
 #include <cstdint>
 #include "..\includes\IniReader.h"
 #include "FeQuickRaceOptionsHook.h"
+#include "NFSC_PreFEngHook.h"
+
+bool bInfiniteNOS = false;
+bool (__thiscall*EasterEggCheck)(void* dis, int cheat) = (bool(__thiscall*)(void*, int))EASTEREGG_CHECK_FUNC;
+
+bool __stdcall EasterEggCheck_Hook(int cheat)
+{
+    int TheThis = 0;
+    _asm mov TheThis, ecx
+    if (cheat == 0xA && bInfiniteNOS)
+        return true;
+    return EasterEggCheck((void*)TheThis, cheat);
+}
 
 void Init();
 
@@ -20,24 +33,30 @@ unsigned char minLaps, maxLaps, minTime, maxTime, minOpponents, maxOpponents, cs
 int hotkeyToggleForceHeat, hotkeyForceHeatLevel, hotkeyToggleCops, hotkeyToggleCopLights, hotkeyToggleHeadlights,
     hotkeyUnlockAllThings, hotkeyAutoDrive, StartingCash, hotkeyDriftMode, ThreadDelay, GameState, SelectableMarkerCount
     ,
-    hotkeyFreezeCamera, ShowMoreRaceOptions, NosTrailRepeatCount;
+    hotkeyFreezeCamera, ShowMoreRaceOptions, NosTrailRepeatCount, SkipFERaceType;
 bool ShowSubs, EnableMoreCarCategories, ShowLanguageSelectScreen, EnableDebugWorldCamera, ExOptsTeamTakeOver,
      EnableCameras, copLightsEnabled, UnlockStrangeRace, UnlockSeriesCarsAndUpgrades,
      EnableHeatLevelOverride, AlwaysRain, SkipMovies, EnableSound, EnableMusic, EnableVoice, GarageZoom, GarageRotate,
      GarageShowcase, ShowDebugCarCustomize, Win10Fix, AugmentedDriftWithEBrake, AutoDrive, UnlockAllThings,
      EnableSaveLoadHotPos, ShowHiddenTracks, ShowLightStreaks, PauseScreenBlur, HUDShakeEffect, ForceCollectorsEdition,
      WheelFix, X10Fix, EnableFog, SkipFirstTimeTutorials, ShowMessage, PursuitActionMode, DriftMode, SkipNISs,
-     DebugWatchCarCamera, IsOnFocus, ShowPursuitCops, ShowNonPursuitCops, ShowAllCarsInFE, SkipCareerIntro,
+     DebugWatchCarCamera, IsOnFocus, ShowPursuitCops, ShowNonPursuitCops, ShowAllCarsInFE,
      AllowMultipleInstances, UncensoredBustedScreen, TimeBugFix, ImmobileColFix, NFSU2StyleLookBackCamera,
-     MoreCarsForOpponents, ShowDebugEventID, NoRevLimiter, NoCatchUp, CrewMemberInAnyRace, CanyonAIUnlimiter;
+     MoreCarsForOpponents, ShowDebugEventID, NoRevLimiter, NoCatchUp, CrewMemberInAnyRace, CanyonAIUnlimiter,
+     SkipCareerIntro, SkipFE, InfiniteNos, InfiniteRB;
 bool forceHeatLevel = 0, once1 = 0, once2 = 0, DebugCamStatus, ToggleCops = 1;
 float SplashScreenTimeLimit, copLightsAmount, LowBeamAmount, HighBeamAmount, MinHeatLevel, MaxHeatLevel, heatLevel,
       RainAmount, RoadReflection, FallingRainSize, RainIntensity, RainXing, RainFallSpeed, RainGravity,
       WorldAnimationSpeed, GameSpeed, CarScale, SBRechargeTime, SBRechargeSpeedLimit, SBMassMultiplier, HUDUpdateRate,
       RadarRange, SpeedingLimit, ExcessiveSpeedingLimit, RecklessDrivingLimit, DriftRaceCollisionThreshold,
       DebugCameraTurboSpeed, DebugCameraSuperTurboSpeed, IdleCameraTimeout, RacePositionX, RacePositionY,
-      CarSelectTireSteerAngle;
+      CarSelectTireSteerAngle, SkipFEPlayerPerformance;
 float FloatValue1pt00 = 1.0f, FloatValue10pt00 = 10.0f;
+char* SkipFERaceID;
+char* SkipFEPlayerCar;
+char* SkipFEPlayerPresetRide;
+char* SkipFEPlayer2Car;
+char* SkipFEOpponentPresetRide;
 HWND windowHandle;
 
 DWORD HeatLevelsCodeCaveExit = 0x449a82;
@@ -397,6 +416,19 @@ void Init()
     AllowMultipleInstances = iniReader.ReadInteger("Misc", "AllowMultipleInstances", 0) == 1;
     ThreadDelay = iniReader.ReadInteger("Misc", "ThreadDelay", 10);
 
+    // Skip FE
+    SkipFE = iniReader.ReadInteger("Skip FE", "SkipFE", 0) == 1;
+    SkipFEPlayerCar = iniReader.ReadString("Skip FE", "SkipFEPlayerCar", "viper");
+    SkipFEPlayerPresetRide = iniReader.ReadString("Skip FE", "SkipFEPlayerPresetRide", "viper");
+    SkipFEPlayer2Car = iniReader.ReadString("Skip FE", "SkipFEPlayer2Car", "viper");
+    SkipFEOpponentPresetRide = iniReader.ReadString("Skip FE", "SkipFEOpponentPresetRide", "viper");
+    SkipFEPlayerPerformance = iniReader.ReadFloat("Skip FE", "SkipFEPlayerPerformance", 1.0f);
+    SkipFERaceType = iniReader.ReadInteger("Skip FE", "SkipFERaceType", 1);
+    SkipFERaceID = iniReader.ReadString("Skip FE", "SkipFERaceID", "");
+
+    InfiniteNos = iniReader.ReadInteger("Cheats", "InfiniteNos", 0) == 1;
+    InfiniteRB = iniReader.ReadInteger("Cheats", "InfiniteRB", 0) == 1;
+
     // Bypass Debugger Detection
     injector::MakeJMP(0x46CD80, 0x46CD70, true);
     injector::MakeJMP(0x86B1D0, 0x46CD70, true);
@@ -560,10 +592,36 @@ void Init()
 
     if (SkipCareerIntro)
     {
-        injector::WriteMemory<uint8_t>(0xa9e6C2 , 1, true); // SkipDDayRaces
+        injector::WriteMemory<uint8_t>(0xa9e6C2, 1, true); // SkipDDayRaces
         injector::WriteMemory<uint8_t>(0xa9e6C1, 1, true); // SkipCareerIntro
     }
-    
+
+    if (SkipFE)
+    {
+        injector::WriteMemory<uint8_t>(SKIPFE_ADDR, 1, true); // SkipFE
+        injector::WriteMemory<char[64]>(SKIPFE_PLAYERCAR_ADDR, SkipFEPlayerCar, true); // SkipFEPlayerCar
+        injector::WriteMemory<char[64]>(SKIPFE_PLAYERPRESETRIDE_ADDR, SkipFEPlayerPresetRide, true); // SkipFEPlayerCar
+        injector::WriteMemory<char[64]>(SKIPFE_PLAYERCAR2_ADDR, SkipFEPlayer2Car, true); // SkipFEPlayer2Car
+        injector::WriteMemory<char[64]>(SKIPFE_OPPONENTPRESETRIDE0_ADDR, SkipFEOpponentPresetRide, true);
+        // SkipFEOpponentPresetRide
+        injector::WriteMemory<float>(SKIPFE_PLAYERPERFORMANCE_ADDR, SkipFEPlayerPerformance, true);
+        // SkipFEPlayerPerformance
+        injector::WriteMemory<int>(SKIPFE_RACEID_ADDR, SkipFERaceType, true); // SkipFERaceID
+        injector::WriteMemory<char[64]>(SKIPFE_RACEID_ADDR, SkipFERaceID, true); // SkipFERaceID
+    }
+
+    // Cheats
+    if (InfiniteNos)
+    {
+        bInfiniteNOS = InfiniteNos;
+        injector::MakeCALL(INFINITENOS_HOOK, EasterEggCheck_Hook, true);
+    }
+    if (InfiniteRB)
+    {
+        injector::MakeCALL(INFINITERB_HOOK, EasterEggCheck_Hook, true); // unnecessary, but left here
+        injector::MakeCALL(INFINITERACEBREAKER_ADDR, EasterEggCheck_Hook, true);
+    }
+
     // Enable Drift Camera View Everywhere
     if (EnableCameras)
     {
@@ -1360,9 +1418,10 @@ BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD reason, LPVOID /*lpReserved*/)
         IMAGE_NT_HEADERS* nt = (IMAGE_NT_HEADERS*)(base + dos->e_lfanew);
 
         if ((base + nt->OptionalHeader.AddressOfEntryPoint + (0x400000 - base)) == 0x87E926)
-        // Check if .exe file is compatible - Thanks to thelink2012 and MWisBest
+        {
+            // Check if .exe file is compatible - Thanks to thelink2012 and MWisBest
             Init();
-
+        }
         else
         {
             MessageBoxA(
