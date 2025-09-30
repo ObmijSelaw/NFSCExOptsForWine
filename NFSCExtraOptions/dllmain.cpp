@@ -10,6 +10,24 @@
 #include "FeQuickRaceOptionsHook.h"
 #include "NFSC_PreFEngHook.h"
 
+// Key state tracking system
+struct KeyState {
+	bool wasPressed;
+	bool isPressed;
+};
+
+KeyState keyStates[256] = {0}; // Track all possible virtual keys
+bool IsKeyJustPressed(int vk) {
+	bool currentState = (GetKeyState(vk) & 0x8000) != 0;
+	bool wasPressed = keyStates[vk].wasPressed;
+	keyStates[vk].wasPressed = currentState;
+	return currentState && !wasPressed;
+}
+
+bool IsKeyPressed(int vk) {
+	return (GetKeyState(vk) & 0x8000) != 0;
+}
+
 bool bInfiniteNOS = false;
 bool (__thiscall*EasterEggCheck)(void* dis, int cheat) = (bool(__thiscall*)(void*, int))EASTEREGG_CHECK_FUNC;
 
@@ -1123,7 +1141,7 @@ DWORD WINAPI Thing(LPVOID)
         }
 
         // Ultimate Force Heat Level
-        if ((GetAsyncKeyState(hotkeyToggleForceHeat) & 1) && (GameState == 6) && IsOnFocus)
+        if (IsKeyJustPressed(hotkeyToggleForceHeat) && (GameState == 6))
         //When pressed "Toggle Force Heat"
         {
             forceHeatLevel = !forceHeatLevel; // Toggle option
@@ -1141,10 +1159,10 @@ DWORD WINAPI Thing(LPVOID)
                 if (ShowMessage) Hud_ShowMessage("^Ultimate Force Heat Level hack is disabled.");
             }
 
-            while ((GetAsyncKeyState(hotkeyToggleForceHeat) & 0x8000) > 0) { Sleep(ThreadDelay); }
+            while (IsKeyJustPressed(hotkeyToggleForceHeat)) > 0) { Sleep(ThreadDelay); }
         }
 
-        if ((GetAsyncKeyState(hotkeyForceHeatLevel) & 1) && forceHeatLevel && (GameState == 6) && IsOnFocus)
+        if (IsKeyJustPressed(hotkeyForceHeatLevel) && forceHeatLevel && (GameState == 6))
         // Set Heat Level
         {
             heatLevel = (int)(floorf(heatLevel) - floorf(MinHeatLevel) + 1) % (int)(floorf(MaxHeatLevel) -
@@ -1152,10 +1170,10 @@ DWORD WINAPI Thing(LPVOID)
 
             Game_SetWorldHeat(heatLevel); // Use direct function call to set the heat level
 
-            while ((GetAsyncKeyState(hotkeyForceHeatLevel) & 0x8000) > 0) { Sleep(ThreadDelay); }
+            while ((IsKeyJustPressed(hotkeyForceHeatLevel)) > 0) { Sleep(ThreadDelay); }
         }
 
-        if ((GetAsyncKeyState(hotkeyToggleCops) & 1) && forceHeatLevel && (GameState == 6) && IsOnFocus) // Toggle Cops
+        if (IsKeyJustPressed(hotkeyToggleCops) && forceHeatLevel && (GameState == 6)) // Toggle Cops
         {
             ToggleCops = !ToggleCops;
             Game_SetCopsEnabled(ToggleCops);
@@ -1169,12 +1187,12 @@ DWORD WINAPI Thing(LPVOID)
                 if (ShowMessage) Hud_ShowMessage("^Cops are now disabled.");
             }
 
-            while ((GetAsyncKeyState(hotkeyToggleCops) & 0x8000) > 0) { Sleep(ThreadDelay); }
+            while ((IsKeyJustPressed(hotkeyToggleCops)) > 0) { Sleep(ThreadDelay); }
         }
 
 
         // Cop Lights
-        if ((GetAsyncKeyState(hotkeyToggleCopLights) & 1) && (GameState == 6) && IsOnFocus)
+        if (IsKeyJustPressed(hotkeyToggleCopLights) && (GameState == 6))
         // When pressed "Toggle Police Lights" key
         {
             copLightsEnabled = !copLightsEnabled;
@@ -1193,11 +1211,11 @@ DWORD WINAPI Thing(LPVOID)
                 }
             }
 
-            while ((GetAsyncKeyState(hotkeyToggleCopLights) & 0x8000) > 0) { Sleep(ThreadDelay); }
+            while (IsKeyJustPressed(hotkeyToggleCopLights)) > 0) { Sleep(ThreadDelay); }
         }
 
         // Headlights
-        if ((GetAsyncKeyState(hotkeyToggleHeadlights) & 1) && (GameState == 6) && IsOnFocus)
+        if (IsKeyJustPressed(hotkeyToggleHeadlights) && (GameState == 6))
         // When pressed "Toggle Head Lights" key
         {
             headlightsMode = !headlightsMode;
@@ -1226,19 +1244,19 @@ DWORD WINAPI Thing(LPVOID)
                 }
             }
 
-            while ((GetAsyncKeyState(hotkeyToggleHeadlights) & 0x8000) > 0) { Sleep(ThreadDelay); }
+            while ((IsKeyJustPressed(hotkeyToggleHeadlights)) > 0) { Sleep(ThreadDelay); }
         }
 
         // Freeze Camera
-        if ((GetAsyncKeyState(hotkeyFreezeCamera) & 1) && IsOnFocus)
+        if (IsKeyJustPressed(hotkeyFreezeCamera))
         {
             *(bool*)0xA888D8 = !(*(bool*)0xA888D8);
 
-            while ((GetAsyncKeyState(hotkeyFreezeCamera) & 0x8000) > 0) { Sleep(ThreadDelay); }
+            while ((IsKeyJustPressed(hotkeyFreezeCamera)) > 0) { Sleep(ThreadDelay); }
         }
 
         // UnlockAllThings
-        if ((GetAsyncKeyState(hotkeyUnlockAllThings) & 1)) //When pressed "Unlock All Things"
+        if (IsKeyJustPressed(hotkeyUnlockAllThings)) //When pressed "Unlock All Things"
         {
             UnlockAllThings = !UnlockAllThings; // Toggle option
             CIniReader iniReader("NFSCExtraOptionsSettings.ini");
@@ -1253,38 +1271,38 @@ DWORD WINAPI Thing(LPVOID)
                 injector::WriteMemory<unsigned char>(0xA9E6C0, 0x00, true);
             }
 
-            while ((GetAsyncKeyState(hotkeyUnlockAllThings) & 0x8000) > 0) { Sleep(ThreadDelay); }
+            while ((IsKeyJustPressed(hotkeyUnlockAllThings)) > 0) { Sleep(ThreadDelay); }
         }
 
         // .hot Save And Load
         if (EnableSaveLoadHotPos && (GameState == 6) && IsOnFocus)
         {
             // Save
-            if (GetAsyncKeyState(VK_LSHIFT) & GetAsyncKeyState(49) & 0x8000)
+            if (IsKeyJustPressed(VK_LSHIFT) & IsKeyJustPressed(49))
             {
                 *(unsigned int*)0xb74bf8 = 1;
                 if (ShowMessage) Hud_ShowMessage("^Saved position data to slot 1.");
             }
 
-            if (GetAsyncKeyState(VK_LSHIFT) & GetAsyncKeyState(50) & 0x8000)
+            if (IsKeyJustPressed(VK_LSHIFT) & IsKeyJustPressed(50))
             {
                 *(unsigned int*)0xb74bf8 = 2;
                 if (ShowMessage) Hud_ShowMessage("^Saved position data to slot 2.");
             }
 
-            if (GetAsyncKeyState(VK_LSHIFT) & GetAsyncKeyState(51) & 0x8000)
+            if (IsKeyJustPressed(VK_LSHIFT) & IsKeyJustPressed(51) &)
             {
                 *(unsigned int*)0xb74bf8 = 3;
                 if (ShowMessage) Hud_ShowMessage("^Saved position data to slot 3.");
             }
 
-            if (GetAsyncKeyState(VK_LSHIFT) & GetAsyncKeyState(52) & 0x8000)
+            if (IsKeyJustPressed(VK_LSHIFT) & IsKeyJustPressed(52))
             {
                 *(unsigned int*)0xb74bf8 = 4;
                 if (ShowMessage) Hud_ShowMessage("^Saved position data to slot 4.");
             }
 
-            if (GetAsyncKeyState(VK_LSHIFT) & GetAsyncKeyState(53) & 0x8000)
+            if (IsKeyJustPressed(VK_LSHIFT) & IsKeyJustPressed(53))
             {
                 *(unsigned int*)0xb74bf8 = 5;
                 if (ShowMessage) Hud_ShowMessage("^Saved position data to slot 5.");
@@ -1292,31 +1310,31 @@ DWORD WINAPI Thing(LPVOID)
 
 
             // Load
-            if (GetAsyncKeyState(VK_LCONTROL) & GetAsyncKeyState(49) & 0x8000)
+            if (IsKeyJustPressed(VK_LCONTROL) & IsKeyJustPressed(49))
             {
                 *(unsigned int*)0xb74bfC = 1;
                 if (ShowMessage) Hud_ShowMessage("^Loaded position data from slot 1.");
             }
 
-            if (GetAsyncKeyState(VK_LCONTROL) & GetAsyncKeyState(50) & 0x8000)
+            if (IsKeyJustPressed(VK_LCONTROL) & IsKeyJustPressed(50))
             {
                 *(unsigned int*)0xb74bfC = 2;
                 if (ShowMessage) Hud_ShowMessage("^Loaded position data from slot 2.");
             }
 
-            if (GetAsyncKeyState(VK_LCONTROL) & GetAsyncKeyState(51) & 0x8000)
+            if (IsKeyJustPressed(VK_LCONTROL) & IsKeyJustPressed(51))
             {
                 *(unsigned int*)0xb74bfC = 3;
                 if (ShowMessage) Hud_ShowMessage("^Loaded position data from slot 3.");
             }
 
-            if (GetAsyncKeyState(VK_LCONTROL) & GetAsyncKeyState(52) & 0x8000)
+            if (IsKeyJustPressed(VK_LCONTROL) & IsKeyJustPressed(52))
             {
                 *(unsigned int*)0xb74bfC = 4;
                 if (ShowMessage) Hud_ShowMessage("^Loaded position data from slot 4.");
             }
 
-            if (GetAsyncKeyState(VK_LCONTROL) & GetAsyncKeyState(53) & 0x8000)
+            if (IsKeyJustPressed(VK_LCONTROL) & IsKeyJustPressed(53))
             {
                 *(unsigned int*)0xb74bfC = 5;
                 if (ShowMessage) Hud_ShowMessage("^Loaded position data from slot 5.");
@@ -1324,7 +1342,7 @@ DWORD WINAPI Thing(LPVOID)
         }
 
         // AutoDrive
-        if ((GetAsyncKeyState(hotkeyAutoDrive) & 1) && (GameState == 6) && IsOnFocus)
+        if (IsKeyJustPressed(hotkeyAutoDrive) && (GameState == 6))
         {
             AutoDrive = !AutoDrive;
 
@@ -1337,11 +1355,11 @@ DWORD WINAPI Thing(LPVOID)
                 Game_ClearAIControl(1);
             }
 
-            while ((GetAsyncKeyState(hotkeyAutoDrive) & 0x8000) > 0) { Sleep(ThreadDelay); }
+            while ((IsKeyJustPressed(hotkeyAutoDrive)) > 0) { Sleep(ThreadDelay); }
         }
 
         // Drift Mode
-        if ((GetAsyncKeyState(hotkeyDriftMode) & 1) && (GameState == 6) && IsOnFocus) //When pressed "Phys Switch"
+        if (IsKeyJustPressed(hotkeyDriftMode) && (GameState == 6)) //When pressed "Phys Switch"
         {
             DriftMode = !DriftMode; // Toggle option
 
@@ -1356,22 +1374,22 @@ DWORD WINAPI Thing(LPVOID)
                 if (ShowMessage) Hud_ShowMessage("^Drift physics are disabled.");
             }
 
-            while ((GetAsyncKeyState(hotkeyDriftMode) & 0x8000) > 0) { Sleep(ThreadDelay); }
+            while ((IsKeyJustPressed(hotkeyDriftMode)) > 0) { Sleep(ThreadDelay); }
         }
 
         // Debug Camera
         if (EnableDebugWorldCamera && (GameState == 6) && IsOnFocus)
         {
-            if ((GetAsyncKeyState(VK_BACK) & 1))
+            if (IsKeyJustPressed(VK_BACK))
             {
                 DebugCamStatus = !DebugCamStatus;
                 if (DebugCamStatus) CameraAI_SetAction(1, "CDActionDebug");
                 else CameraAI_SetAction(1, "CDActionDrive");
 
-                while ((GetAsyncKeyState(VK_BACK) & 0x8000) > 0) { Sleep(ThreadDelay); }
+                while ((IsKeyJustPressed(VK_BACK)) > 0) { Sleep(ThreadDelay); }
             }
 
-            if ((GetAsyncKeyState(VK_NEXT) & 1)) // Page Down : Toggle Debug Watch Car Camera
+            if ((IsKeyJustPressed(VK_NEXT))) // Page Down : Toggle Debug Watch Car Camera
             {
                 DebugWatchCarCamera = !DebugWatchCarCamera;
                 *(unsigned char*)0xA88914 = 1;
@@ -1388,21 +1406,21 @@ DWORD WINAPI Thing(LPVOID)
                     *(unsigned char*)0xA888F1 = 0;
                 }
 
-                while ((GetAsyncKeyState(VK_NEXT) & 0x8000) > 0) { Sleep(ThreadDelay); }
+                while ((IsKeyJustPressed(VK_NEXT)) > 0) { Sleep(ThreadDelay); }
             }
 
-            if ((GetAsyncKeyState(VK_ADD) & 1) && DebugWatchCarCamera) // + : Next car
+            if ((IsKeyJustPressed(VK_ADD)) && DebugWatchCarCamera) // + : Next car
             {
                 *(unsigned char*)0xA88914 += 1;
 
-                while ((GetAsyncKeyState(VK_ADD) & 0x8000) > 0) { Sleep(ThreadDelay); }
+                while ((IsKeyJustPressed(VK_ADD)) > 0) { Sleep(ThreadDelay); }
             }
 
-            if ((GetAsyncKeyState(VK_SUBTRACT) & 1) && DebugWatchCarCamera) // - : Previous car
+            if ((IsKeyJustPressed(VK_SUBTRACT)) && DebugWatchCarCamera) // - : Previous car
             {
                 *(unsigned char*)0xA88914 -= 1;
 
-                while ((GetAsyncKeyState(VK_SUBTRACT) & 0x8000) > 0) { Sleep(ThreadDelay); }
+                while ((IsKeyJustPressed(VK_SUBTRACT)) > 0) { Sleep(ThreadDelay); }
             }
         }
     }
