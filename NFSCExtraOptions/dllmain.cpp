@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 #include <corecrt_math.h>
 
@@ -12,20 +12,20 @@
 
 // Key state tracking system
 struct KeyState {
-	bool wasPressed;
-	bool isPressed;
+    bool wasPressed;
+    bool isPressed;
 };
 
 KeyState keyStates[256] = {0}; // Track all possible virtual keys
 bool IsKeyJustPressed(int vk) {
-	bool currentState = (GetKeyState(vk) & 0x8000) != 0;
-	bool wasPressed = keyStates[vk].wasPressed;
-	keyStates[vk].wasPressed = currentState;
-	return currentState && !wasPressed;
+    bool currentState = (GetKeyState(vk) & 0x8000) != 0;
+    bool wasPressed = keyStates[vk].wasPressed;
+    keyStates[vk].wasPressed = currentState;
+    return currentState && !wasPressed;
 }
 
 bool IsKeyPressed(int vk) {
-	return (GetKeyState(vk) & 0x8000) != 0;
+    return (GetKeyState(vk) & 0x8000) != 0;
 }
 
 bool bInfiniteNOS = false;
@@ -45,30 +45,30 @@ void Init();
 DWORD WINAPI Thing(LPVOID);
 
 unsigned char minLaps, maxLaps, minTime, maxTime, minOpponents, maxOpponents, csBlacklist, headlightsMode,
-              MaximumMultiplierTrack, MaximumMultiplierCanyon, TrafficLow, TrafficMed, TrafficHigh, CameraDriftMoveMode,
-              ShowSpecialVinyls, MaxUniqueOpponentCars, QRBackCamo, WindowedMode,
-              RemoveNeonBarriers;
+MaximumMultiplierTrack, MaximumMultiplierCanyon, TrafficLow, TrafficMed, TrafficHigh, CameraDriftMoveMode,
+ShowSpecialVinyls, MaxUniqueOpponentCars, QRBackCamo, WindowedMode,
+RemoveNeonBarriers;
 int hotkeyToggleForceHeat, hotkeyForceHeatLevel, hotkeyToggleCops, hotkeyToggleCopLights, hotkeyToggleHeadlights,
-    hotkeyUnlockAllThings, hotkeyAutoDrive, StartingCash, hotkeyDriftMode, ThreadDelay, GameState, SelectableMarkerCount
-    ,
-    hotkeyFreezeCamera, ShowMoreRaceOptions, NosTrailRepeatCount, SkipFERaceType;
+hotkeyUnlockAllThings, hotkeyAutoDrive, StartingCash, hotkeyDriftMode, ThreadDelay, GameState, SelectableMarkerCount
+,
+hotkeyFreezeCamera, ShowMoreRaceOptions, NosTrailRepeatCount, SkipFERaceType;
 bool ShowSubs, EnableMoreCarCategories, ShowLanguageSelectScreen, EnableDebugWorldCamera, ExOptsTeamTakeOver,
-     EnableCameras, copLightsEnabled, UnlockStrangeRace, UnlockSeriesCarsAndUpgrades,
-     EnableHeatLevelOverride, AlwaysRain, SkipMovies, EnableSound, EnableMusic, EnableVoice, GarageZoom, GarageRotate,
-     GarageShowcase, ShowDebugCarCustomize, Win10Fix, AugmentedDriftWithEBrake, AutoDrive, UnlockAllThings,
-     EnableSaveLoadHotPos, ShowHiddenTracks, ShowLightStreaks, PauseScreenBlur, HUDShakeEffect, ForceCollectorsEdition,
-     WheelFix, X10Fix, EnableFog, SkipFirstTimeTutorials, ShowMessage, PursuitActionMode, DriftMode, SkipNISs,
-     DebugWatchCarCamera, IsOnFocus, ShowPursuitCops, ShowNonPursuitCops, ShowAllCarsInFE,
-     AllowMultipleInstances, UncensoredBustedScreen, TimeBugFix, ImmobileColFix, NFSU2StyleLookBackCamera,
-     MoreCarsForOpponents, ShowDebugEventID, NoRevLimiter, NoCatchUp, CrewMemberInAnyRace, CanyonAIUnlimiter,
-     SkipCareerIntro, SkipFE, InfiniteNos, InfiniteRB;
+EnableCameras, copLightsEnabled, UnlockStrangeRace, UnlockSeriesCarsAndUpgrades,
+EnableHeatLevelOverride, AlwaysRain, SkipMovies, EnableSound, EnableMusic, EnableVoice, GarageZoom, GarageRotate,
+GarageShowcase, ShowDebugCarCustomize, Win10Fix, AugmentedDriftWithEBrake, AutoDrive, UnlockAllThings,
+EnableSaveLoadHotPos, ShowHiddenTracks, ShowLightStreaks, PauseScreenBlur, HUDShakeEffect, ForceCollectorsEdition,
+WheelFix, X10Fix, EnableFog, SkipFirstTimeTutorials, ShowMessage, PursuitActionMode, DriftMode, SkipNISs,
+DebugWatchCarCamera, IsOnFocus, ShowPursuitCops, ShowNonPursuitCops, ShowAllCarsInFE,
+AllowMultipleInstances, UncensoredBustedScreen, TimeBugFix, ImmobileColFix, NFSU2StyleLookBackCamera,
+MoreCarsForOpponents, ShowDebugEventID, NoRevLimiter, NoCatchUp, CrewMemberInAnyRace, CanyonAIUnlimiter,
+SkipCareerIntro, SkipFE, InfiniteNos, InfiniteRB;
 bool forceHeatLevel = 0, once1 = 0, once2 = 0, DebugCamStatus, ToggleCops = 1;
 float SplashScreenTimeLimit, copLightsAmount, LowBeamAmount, HighBeamAmount, MinHeatLevel, MaxHeatLevel, heatLevel,
-      RainAmount, RoadReflection, FallingRainSize, RainIntensity, RainXing, RainFallSpeed, RainGravity,
-      WorldAnimationSpeed, GameSpeed, CarScale, SBRechargeTime, SBRechargeSpeedLimit, SBMassMultiplier, HUDUpdateRate,
-      RadarRange, SpeedingLimit, ExcessiveSpeedingLimit, RecklessDrivingLimit, DriftRaceCollisionThreshold,
-      DebugCameraTurboSpeed, DebugCameraSuperTurboSpeed, IdleCameraTimeout, RacePositionX, RacePositionY,
-      CarSelectTireSteerAngle, SkipFEPlayerPerformance;
+RainAmount, RoadReflection, FallingRainSize, RainIntensity, RainXing, RainFallSpeed, RainGravity,
+WorldAnimationSpeed, GameSpeed, CarScale, SBRechargeTime, SBRechargeSpeedLimit, SBMassMultiplier, HUDUpdateRate,
+RadarRange, SpeedingLimit, ExcessiveSpeedingLimit, RecklessDrivingLimit, DriftRaceCollisionThreshold,
+DebugCameraTurboSpeed, DebugCameraSuperTurboSpeed, IdleCameraTimeout, RacePositionX, RacePositionY,
+CarSelectTireSteerAngle, SkipFEPlayerPerformance;
 float FloatValue1pt00 = 1.0f, FloatValue10pt00 = 10.0f;
 char* SkipFERaceID;
 char* SkipFEPlayerCar;
@@ -81,7 +81,7 @@ DWORD HeatLevelsCodeCaveExit = 0x449a82;
 DWORD StringReplacementCodeCaveExit = 0x57861F;
 
 char* StringBuffer1 =
-    "© 2006 Electronic Arts Inc. All rights reserved.^NFSC Extra Options - © 2022 ExOpts Team. No rights reserved.";
+"© 2006 Electronic Arts Inc. All rights reserved.^NFSC Extra Options - © 2022 ExOpts Team. No rights reserved.";
 DWORD _A7EBC389_New = (DWORD)StringBuffer1;
 
 DWORD CopsOptionCodeCaveExit = 0x84C1E1;
@@ -116,27 +116,27 @@ bool QRLaps, QRCrew, QRTraffic, QROpponents, QRCatchUp, QRNitrous, QRShadowOptio
 void __declspec(naked) HeatLevelsCodeCave()
 {
     _asm
-        {
+    {
         cmp EnableHeatLevelOverride, 1
         jne dontforceMinMaxHeat
 
         forceMinMaxHeat :
-        mov ebx, MaxHeatLevel
-        mov [esi + 0xF8], ebx
-        mov ebx, MinHeatLevel
-        mov [esi + 0xF4], ebx
+            mov ebx, MaxHeatLevel
+            mov [esi + 0xF8], ebx
+            mov ebx, MinHeatLevel
+            mov [esi + 0xF4], ebx
 
-        dontforceMinMaxHeat :
-        mov eax, [esi + 0xF8]
-        jmp HeatLevelsCodeCaveExit
+            dontforceMinMaxHeat :
+            mov eax, [esi + 0xF8]
+            jmp HeatLevelsCodeCaveExit
 
-        }
+    }
 }
 
 void __declspec(naked) StringReplacementCodeCave()
 {
     _asm
-        {
+    {
         mov ecx, dword ptr ds : [ebx + eax * 0x08]
 
         cmp ExOptsTeamTakeOver, 0x00
@@ -161,13 +161,13 @@ void __declspec(naked) StringReplacementCodeCave()
         cmp ecx, edx
         jmp StringReplacementCodeCaveExit
 
-        }
+    }
 }
 
 void __declspec(naked) PauseBlurCodeCave()
 {
     _asm
-        {
+    {
         cmp dword ptr ds : [0xA8AD18], 0x00 //on pause screen
         je originalcode
         cmp dword ptr ds : [0xA590A0], 0x1F41 //not on photo mode
@@ -176,13 +176,13 @@ void __declspec(naked) PauseBlurCodeCave()
 
         originalcode :
         ret
-        }
+    }
 }
 
 void __declspec(naked) PauseBlurCodeCave2()
 {
     _asm
-        {
+    {
         cmp dword ptr ds : [0xA8AD18], 0x00 //on pause screen
         je originalcode
         cmp dword ptr ds : [0xA590A0], 0x1F41 //not on photo mode
@@ -191,7 +191,7 @@ void __declspec(naked) PauseBlurCodeCave2()
 
         originalcode :
         ret
-        }
+    }
 }
 
 void __declspec(naked) DebugEventIDCodeCave()
@@ -204,23 +204,23 @@ void __declspec(naked) DebugEventIDCodeCave()
 
     _asm mov eax, EventID;
     _asm
-        {
+    {
         push eax
         push 0x9D4C5C // TRACK_MAP_%s
         jmp DebugEventIDCodeCaveExit
-        }
+    }
 }
 
 void __declspec(naked) RacePositionCodeCave()
 {
     _asm
-        {
+    {
         mov edx,0xC380000 // -256.0f
         mov RacePositionX,edx
         lea edx, [esp+0x38]
         push edx
         jmp RacePositionCodeCaveExit
-        }
+    }
 }
 
 void __declspec(naked) RacePositionCodeCave2()
@@ -231,7 +231,7 @@ void __declspec(naked) RacePositionCodeCave2()
     RacePositionY = -2980.0f;
 
     _asm
-        {
+    {
         popad
         push eax
         mov eax, RacePositionX
@@ -242,13 +242,13 @@ void __declspec(naked) RacePositionCodeCave2()
         mov al,01
         add esp,0x0C
         ret 4
-        }
+    }
 }
 
 void __declspec(naked) TrackRegionCodeCave()
 {
     _asm
-        {
+    {
         movzx eax, byte ptr ds:[eax + 0x29]
         cmp al,05
         jg sanjuan
@@ -261,13 +261,13 @@ void __declspec(naked) TrackRegionCodeCave()
         caveexit:
         pop esi
         ret
-        }
+    }
 }
 
 void __declspec(naked) X10FixCodeCave()
 {
     _asm
-        {
+    {
         mov edi, [esi + 0x00F4]
         cmp edi, 0x0A // If heat level is 10 or more
         jl originalcode // If less, do nothing
@@ -276,13 +276,13 @@ void __declspec(naked) X10FixCodeCave()
 
         originalcode:
         jmp X10FixCodeCaveExit // 0042A511
-        }
+    }
 }
 
 void __declspec(naked) X10FixCodeCave2()
 {
     _asm
-        {
+    {
         //Simple Method: Replaces any Combo Timer >=120s to 10s.
         cmp ecx, 0x42F00000 // if 120 seconds or higher
         jl originalcode
@@ -292,7 +292,7 @@ void __declspec(naked) X10FixCodeCave2()
         mov dword ptr ds : [esi + 0x148], ecx
 
         jmp X10FixCodeCave2Exit
-        }
+    }
 }
 
 int Return0Hook()
@@ -670,7 +670,7 @@ void Init()
         injector::WriteMemory<unsigned char>(0x9d862c, 0x59, true); // BARRIER_SPLINE_305
         injector::WriteMemory<unsigned char>(0x9d8b34, 0x59, true); // BARRIER_SPLINE_%d
 
-        // Remove Area Barriers 
+        // Remove Area Barriers
         if (RemoveNeonBarriers == 2)
         {
             injector::WriteMemory<unsigned char>(0x9d862c, 0x59, true); // BARRIER_SPLINE_305
@@ -828,7 +828,7 @@ void Init()
         injector::MakeNOP(0x8411BF, 2, true);
         injector::MakeNOP(0x8411C6, 2, true);
 
-        // Remove Vinyl - Car Specifications 
+        // Remove Vinyl - Car Specifications
         injector::MakeNOP(0x588B8B, 2, true);
         injector::MakeNOP(0x588B96, 2, true);
         //injector::MakeNOP(0x588BA3, 2, true); // (breaks crew logo selection)
@@ -843,33 +843,33 @@ void Init()
     // Drift Camera Movement (SmartLookAheadCamera)
     switch (CameraDriftMoveMode)
     {
-    case 0: // Disable for all
-        injector::WriteMemory<unsigned char>(0x48539C, 0xB3, true); // Drift
-        injector::WriteMemory<unsigned char>(0x48539D, 0x00, true);
-        injector::WriteMemory<unsigned char>(0x485398, 0xB3, true); // Others
-        injector::WriteMemory<unsigned char>(0x485399, 0x00, true);
-        break;
+        case 0: // Disable for all
+            injector::WriteMemory<unsigned char>(0x48539C, 0xB3, true); // Drift
+            injector::WriteMemory<unsigned char>(0x48539D, 0x00, true);
+            injector::WriteMemory<unsigned char>(0x485398, 0xB3, true); // Others
+            injector::WriteMemory<unsigned char>(0x485399, 0x00, true);
+            break;
 
-    case 1: default: // Enable for Drift, disable for others (Default behaviour)
-        injector::WriteMemory<unsigned char>(0x48539C, 0xB3, true); // Drift
-        injector::WriteMemory<unsigned char>(0x48539D, 0x01, true);
-        injector::WriteMemory<unsigned char>(0x485398, 0xB3, true); // Others
-        injector::WriteMemory<unsigned char>(0x485399, 0x00, true);
-        break;
+        case 1: default: // Enable for Drift, disable for others (Default behaviour)
+            injector::WriteMemory<unsigned char>(0x48539C, 0xB3, true); // Drift
+            injector::WriteMemory<unsigned char>(0x48539D, 0x01, true);
+            injector::WriteMemory<unsigned char>(0x485398, 0xB3, true); // Others
+            injector::WriteMemory<unsigned char>(0x485399, 0x00, true);
+            break;
 
-    case 2: // Disable for Drift, enable for others
-        injector::WriteMemory<unsigned char>(0x48539C, 0xB3, true); // Drift
-        injector::WriteMemory<unsigned char>(0x48539D, 0x00, true);
-        injector::WriteMemory<unsigned char>(0x485398, 0xB3, true); // Others
-        injector::WriteMemory<unsigned char>(0x485399, 0x01, true);
-        break;
+        case 2: // Disable for Drift, enable for others
+            injector::WriteMemory<unsigned char>(0x48539C, 0xB3, true); // Drift
+            injector::WriteMemory<unsigned char>(0x48539D, 0x00, true);
+            injector::WriteMemory<unsigned char>(0x485398, 0xB3, true); // Others
+            injector::WriteMemory<unsigned char>(0x485399, 0x01, true);
+            break;
 
-    case 3: // Enable for all
-        injector::WriteMemory<unsigned char>(0x48539C, 0xB3, true); // Drift
-        injector::WriteMemory<unsigned char>(0x48539D, 0x01, true);
-        injector::WriteMemory<unsigned char>(0x485398, 0xB3, true); // Others
-        injector::WriteMemory<unsigned char>(0x485399, 0x01, true);
-        break;
+        case 3: // Enable for all
+            injector::WriteMemory<unsigned char>(0x48539C, 0xB3, true); // Drift
+            injector::WriteMemory<unsigned char>(0x48539D, 0x01, true);
+            injector::WriteMemory<unsigned char>(0x485398, 0xB3, true); // Others
+            injector::WriteMemory<unsigned char>(0x485399, 0x01, true);
+            break;
     }
 
     // NIS Like Drift With Handbrake
@@ -1058,7 +1058,7 @@ void Init()
     if (ShowHiddenTracks)
     {
         // IsQuickRaceLocked - Nop lock jumps
-        //injector::MakeJMP(0x4A229A, 0x4A22E0, true); 
+        //injector::MakeJMP(0x4A229A, 0x4A22E0, true);
         injector::MakeRangedNOP(0x4A22B8, 0x4A22BA, true); // GetIsChallengeSeriesRace
         injector::MakeRangedNOP(0x4A22C3, 0x4A22C5, true); // GetNeverInQuickRace
         injector::MakeRangedNOP(0x4A22CE, 0x4A22D0, true); // GetIsDDayRace
@@ -1119,7 +1119,7 @@ DWORD WINAPI Thing(LPVOID)
             GetClientRect(windowHandle, &o_cRect);
 
             DWORD wStyle = GetWindowLongPtr(windowHandle, GWL_STYLE) | WS_VISIBLE | WS_CAPTION | WS_SYSMENU |
-                WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_OVERLAPPEDWINDOW;
+            WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_OVERLAPPEDWINDOW;
             SetWindowLongPtr(windowHandle, GWL_STYLE, wStyle);
 
             // make window change style
@@ -1142,7 +1142,7 @@ DWORD WINAPI Thing(LPVOID)
 
         // Ultimate Force Heat Level
         if (IsKeyJustPressed(hotkeyToggleForceHeat) && (GameState == 6))
-        //When pressed "Toggle Force Heat"
+            //When pressed "Toggle Force Heat"
         {
             forceHeatLevel = !forceHeatLevel; // Toggle option
             if (forceHeatLevel)
@@ -1159,18 +1159,18 @@ DWORD WINAPI Thing(LPVOID)
                 if (ShowMessage) Hud_ShowMessage("^Ultimate Force Heat Level hack is disabled.");
             }
 
-            while (IsKeyJustPressed(hotkeyToggleForceHeat)) > 0) { Sleep(ThreadDelay); }
+            while (IsKeyJustPressed(hotkeyToggleForceHeat)) { Sleep(ThreadDelay); }
         }
 
         if (IsKeyJustPressed(hotkeyForceHeatLevel) && forceHeatLevel && (GameState == 6))
-        // Set Heat Level
+            // Set Heat Level
         {
             heatLevel = (int)(floorf(heatLevel) - floorf(MinHeatLevel) + 1) % (int)(floorf(MaxHeatLevel) -
-                floorf(MinHeatLevel) + 1) + MinHeatLevel;
+            floorf(MinHeatLevel) + 1) + MinHeatLevel;
 
             Game_SetWorldHeat(heatLevel); // Use direct function call to set the heat level
 
-            while ((IsKeyJustPressed(hotkeyForceHeatLevel)) > 0) { Sleep(ThreadDelay); }
+            while (IsKeyJustPressed(hotkeyForceHeatLevel)) { Sleep(ThreadDelay); }
         }
 
         if (IsKeyJustPressed(hotkeyToggleCops) && forceHeatLevel && (GameState == 6)) // Toggle Cops
@@ -1187,13 +1187,13 @@ DWORD WINAPI Thing(LPVOID)
                 if (ShowMessage) Hud_ShowMessage("^Cops are now disabled.");
             }
 
-            while ((IsKeyJustPressed(hotkeyToggleCops)) > 0) { Sleep(ThreadDelay); }
+            while (IsKeyJustPressed(hotkeyToggleCops)) { Sleep(ThreadDelay); }
         }
 
 
         // Cop Lights
         if (IsKeyJustPressed(hotkeyToggleCopLights) && (GameState == 6))
-        // When pressed "Toggle Police Lights" key
+            // When pressed "Toggle Police Lights" key
         {
             copLightsEnabled = !copLightsEnabled;
 
@@ -1211,12 +1211,12 @@ DWORD WINAPI Thing(LPVOID)
                 }
             }
 
-            while (IsKeyJustPressed(hotkeyToggleCopLights)) > 0) { Sleep(ThreadDelay); }
+            while (IsKeyJustPressed(hotkeyToggleCopLights)) { Sleep(ThreadDelay); }
         }
 
         // Headlights
         if (IsKeyJustPressed(hotkeyToggleHeadlights) && (GameState == 6))
-        // When pressed "Toggle Head Lights" key
+            // When pressed "Toggle Head Lights" key
         {
             headlightsMode = !headlightsMode;
 
@@ -1244,7 +1244,7 @@ DWORD WINAPI Thing(LPVOID)
                 }
             }
 
-            while ((IsKeyJustPressed(hotkeyToggleHeadlights)) > 0) { Sleep(ThreadDelay); }
+            while (IsKeyJustPressed(hotkeyToggleHeadlights)) { Sleep(ThreadDelay); }
         }
 
         // Freeze Camera
@@ -1252,7 +1252,7 @@ DWORD WINAPI Thing(LPVOID)
         {
             *(bool*)0xA888D8 = !(*(bool*)0xA888D8);
 
-            while ((IsKeyJustPressed(hotkeyFreezeCamera)) > 0) { Sleep(ThreadDelay); }
+            while (IsKeyJustPressed(hotkeyFreezeCamera)) { Sleep(ThreadDelay); }
         }
 
         // UnlockAllThings
@@ -1271,7 +1271,7 @@ DWORD WINAPI Thing(LPVOID)
                 injector::WriteMemory<unsigned char>(0xA9E6C0, 0x00, true);
             }
 
-            while ((IsKeyJustPressed(hotkeyUnlockAllThings)) > 0) { Sleep(ThreadDelay); }
+            while (IsKeyJustPressed(hotkeyUnlockAllThings)) { Sleep(ThreadDelay); }
         }
 
         // .hot Save And Load
@@ -1290,7 +1290,7 @@ DWORD WINAPI Thing(LPVOID)
                 if (ShowMessage) Hud_ShowMessage("^Saved position data to slot 2.");
             }
 
-            if (IsKeyJustPressed(VK_LSHIFT) & IsKeyJustPressed(51) &)
+            if (IsKeyJustPressed(VK_LSHIFT) & IsKeyJustPressed(51))
             {
                 *(unsigned int*)0xb74bf8 = 3;
                 if (ShowMessage) Hud_ShowMessage("^Saved position data to slot 3.");
@@ -1355,7 +1355,7 @@ DWORD WINAPI Thing(LPVOID)
                 Game_ClearAIControl(1);
             }
 
-            while ((IsKeyJustPressed(hotkeyAutoDrive)) > 0) { Sleep(ThreadDelay); }
+            while (IsKeyJustPressed(hotkeyAutoDrive)) { Sleep(ThreadDelay); }
         }
 
         // Drift Mode
@@ -1374,7 +1374,7 @@ DWORD WINAPI Thing(LPVOID)
                 if (ShowMessage) Hud_ShowMessage("^Drift physics are disabled.");
             }
 
-            while ((IsKeyJustPressed(hotkeyDriftMode)) > 0) { Sleep(ThreadDelay); }
+            while (IsKeyJustPressed(hotkeyDriftMode)) { Sleep(ThreadDelay); }
         }
 
         // Debug Camera
@@ -1386,10 +1386,10 @@ DWORD WINAPI Thing(LPVOID)
                 if (DebugCamStatus) CameraAI_SetAction(1, "CDActionDebug");
                 else CameraAI_SetAction(1, "CDActionDrive");
 
-                while ((IsKeyJustPressed(VK_BACK)) > 0) { Sleep(ThreadDelay); }
+                while (IsKeyJustPressed(VK_BACK)) { Sleep(ThreadDelay); }
             }
 
-            if ((IsKeyJustPressed(VK_NEXT))) // Page Down : Toggle Debug Watch Car Camera
+            if (IsKeyJustPressed(VK_NEXT)) // Page Down : Toggle Debug Watch Car Camera
             {
                 DebugWatchCarCamera = !DebugWatchCarCamera;
                 *(unsigned char*)0xA88914 = 1;
@@ -1406,21 +1406,21 @@ DWORD WINAPI Thing(LPVOID)
                     *(unsigned char*)0xA888F1 = 0;
                 }
 
-                while ((IsKeyJustPressed(VK_NEXT)) > 0) { Sleep(ThreadDelay); }
+                while (IsKeyJustPressed(VK_NEXT)) { Sleep(ThreadDelay); }
             }
 
-            if ((IsKeyJustPressed(VK_ADD)) && DebugWatchCarCamera) // + : Next car
+            if (IsKeyJustPressed(VK_ADD) && DebugWatchCarCamera) // + : Next car
             {
                 *(unsigned char*)0xA88914 += 1;
 
-                while ((IsKeyJustPressed(VK_ADD)) > 0) { Sleep(ThreadDelay); }
+                while (IsKeyJustPressed(VK_ADD)) { Sleep(ThreadDelay); }
             }
 
-            if ((IsKeyJustPressed(VK_SUBTRACT)) && DebugWatchCarCamera) // - : Previous car
+            if (IsKeyJustPressed(VK_SUBTRACT) && DebugWatchCarCamera) // - : Previous car
             {
                 *(unsigned char*)0xA88914 -= 1;
 
-                while ((IsKeyJustPressed(VK_SUBTRACT)) > 0) { Sleep(ThreadDelay); }
+                while (IsKeyJustPressed(VK_SUBTRACT)) { Sleep(ThreadDelay); }
             }
         }
     }
@@ -1444,7 +1444,7 @@ BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD reason, LPVOID /*lpReserved*/)
         {
             MessageBoxA(
                 NULL, "This .exe is not supported.\nPlease use v1.4 English nfsc.exe (6,88 MB (7.217.152 bytes)).",
-                "NFSC Extra Options", MB_ICONERROR);
+                        "NFSC Extra Options", MB_ICONERROR);
             return FALSE;
         }
     }
